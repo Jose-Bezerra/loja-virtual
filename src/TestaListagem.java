@@ -7,9 +7,9 @@ public class TestaListagem {
         Connection con = connectionFactory.recuperarConexao();
 
         //Claúsula SELECT no banco equivale a um Statement no JAVA
-        Statement stm = con.createStatement();
+        PreparedStatement stm = con.prepareStatement("SELECT ID, NOME, DESCRICAO FROM PRODUTO");
         //Essa expressão resulta um boolean. Se true é uma lista, senão não devolve nada
-        stm.execute("SELECT ID, NOME, DESCRICAO FROM PRODUTO");
+        stm.execute();
         ResultSet rst = stm.getResultSet();
 
         while (rst.next()) {
