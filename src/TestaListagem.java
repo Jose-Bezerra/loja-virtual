@@ -2,9 +2,9 @@ import java.sql.*;
 
 public class TestaListagem {
     public static void main(String[] args) throws SQLException {
-        //recuperando a conexão com o banco
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/loja_virtual?" +
-                "useTimezone=true&serverTimezone=UTC", "root", "");
+
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        Connection con = connectionFactory.recuperarConexao();
 
         //Claúsula SELECT no banco equivale a um Statement no JAVA
         Statement stm = con.createStatement();
