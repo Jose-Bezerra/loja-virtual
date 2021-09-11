@@ -4,13 +4,24 @@ public class TestaInsercaoComParametro {
     public static void main(String[] args) throws SQLException {
 
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        Connection connection = connectionFactory.recuperarConexao();
+        try (Connection connection = connectionFactory.recuperarConexao()) {
+            //Assumindo o controle das transações no JDBC
+            connection.setAutoCommit(false);
 
-        //PreparedStatement evita o uso intencional de SQL Injection
-        PreparedStatement stm = connection.prepareStatement("INSERT INTO PRODUTO (nome, descricao) VALUES (?, ?)",
-                Statement.RETURN_GENERATED_KEYS);
-        adicionarVariavel("Smart TV", "LG", stm);
-        adicionarVariavel("Ipad", "Apple", stm);
+            //try com recurso, elimina o close()
+            try (PreparedStatement stm = connection.prepareStatement("INSERT INTO PRODUTO (nome, descricao) VALUES (?, ?)",
+                    Statement.RETURN_GENERATED_KEYS)) {
+                adicionarVariavel("Smart TV", "LG", stm);
+                adicionarVariavel("Ipad", "Apple", stm);
+                //Como o controle do banco é do desenvolvedor, o commit é essencial
+                connection.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Rollback Executado");
+                //Rollback é essencial também
+                connection.rollback();
+            }
+        }
     }
 
     private static void adicionarVariavel(String nome, String descricao, PreparedStatement stm) throws SQLException {
@@ -23,11 +34,12 @@ public class TestaInsercaoComParametro {
 
         stm.execute();
 
-        ResultSet rst = stm.getGeneratedKeys();
+        try (ResultSet rst = stm.getGeneratedKeys()) {
 
-        while (rst.next()) {
-            int id = rst.getInt(1);
-            System.out.printf("O id gerado foi %d%n", id);
+            while (rst.next()) {
+                int id = rst.getInt(1);
+                System.out.printf("O id gerado foi %d%n", id);
+            }
         }
     }
 }
