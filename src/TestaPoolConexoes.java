@@ -1,3 +1,5 @@
+import factory.ConnectionFactory;
+
 import java.sql.SQLException;
 
 public class TestaPoolConexoes {
